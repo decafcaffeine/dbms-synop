@@ -1,0 +1,211 @@
+# 🚀 Deployment Guide — Green Transportation Management System
+# Complete step-by-step: Local setup + Free online deployment
+
+=============================================================
+PART 1: RUN LOCALLY ON YOUR LAPTOP
+=============================================================
+
+STEP 1: Install required software
+----------------------------------
+1. Download and install Node.js: https://nodejs.org (LTS version)
+2. Download and install MySQL: https://dev.mysql.com/downloads/installer/
+3. Download VS Code: https://code.visualstudio.com
+4. Install MySQL Workbench (comes with MySQL installer)
+
+STEP 2: Set up the database
+-----------------------------
+1. Open MySQL Workbench
+2. Connect to your local MySQL server (root / your password)
+3. Open schema.sql in Workbench (File → Open SQL Script)
+4. Click the lightning bolt ⚡ button to run ALL queries
+5. You should see the green_transport database created with all tables
+
+STEP 3: Set up the backend
+-----------------------------
+1. Open a terminal / command prompt
+2. Navigate to the backend folder:
+   cd path/to/backend
+
+3. Install dependencies:
+   npm install
+
+4. Edit the .env file with your MySQL password:
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASS=your_mysql_password   ← change this
+   DB_NAME=green_transport
+   PORT=5000
+
+5. Start the backend server:
+   npm start
+   
+   You should see: ✅ MySQL connected
+                   🚀 Server running on port 5000
+
+6. Test it: Open browser → http://localhost:5000/api/dashboard
+   You should see JSON data
+
+STEP 4: Set up the frontend
+-----------------------------
+1. Open a NEW terminal window
+2. Create a React app:
+   npx create-react-app green-transport-frontend
+   cd green-transport-frontend
+
+3. Replace src/App.js with the App.jsx file provided
+
+4. Install nothing extra (uses only React)
+
+5. Start frontend:
+   npm start
+   
+   Browser opens at http://localhost:3000 automatically ✅
+
+=============================================================
+PART 2: DEPLOY ONLINE FOR FREE
+=============================================================
+
+ARCHITECTURE:
+  MySQL DB  →  Backend (Render)  →  Frontend (Vercel)
+  (PlanetScale or Railway)
+
+------------------------------------------------------------
+STEP A: Deploy MySQL Database (FREE on Railway)
+------------------------------------------------------------
+1. Go to https://railway.app
+2. Sign up with GitHub account
+3. Click "New Project" → "Database" → "MySQL"
+4. Railway creates a MySQL database for you
+5. Click on your database → "Connect" tab
+6. Copy these values:
+   - MYSQL_HOST
+   - MYSQL_USER  
+   - MYSQL_PASSWORD
+   - MYSQL_DATABASE
+   - MYSQL_PORT
+7. Open MySQL Workbench:
+   - New Connection → paste Railway's host, user, password, port
+   - Connect and run schema.sql to create all tables
+
+------------------------------------------------------------
+STEP B: Deploy Backend (FREE on Render)
+------------------------------------------------------------
+1. Push your backend code to GitHub:
+   
+   cd backend
+   git init
+   git add .
+   git commit -m "initial commit"
+   
+   Go to github.com → New Repository → name it green-transport-backend
+   Follow GitHub instructions to push
+
+2. Go to https://render.com
+3. Sign up with GitHub
+4. Click "New +" → "Web Service"
+5. Connect your GitHub repo
+6. Fill in:
+   - Name: green-transport-backend
+   - Runtime: Node
+   - Build Command: npm install
+   - Start Command: npm start
+7. Click "Environment" → Add these variables:
+   DB_HOST = (paste Railway MYSQL_HOST)
+   DB_USER = (paste Railway MYSQL_USER)
+   DB_PASS = (paste Railway MYSQL_PASSWORD)
+   DB_NAME = (paste Railway MYSQL_DATABASE)
+   PORT = 5000
+8. Click "Deploy"
+9. Wait 2-3 minutes → you get a URL like:
+   https://green-transport-backend.onrender.com
+
+------------------------------------------------------------
+STEP C: Deploy Frontend (FREE on Vercel)
+------------------------------------------------------------
+1. In App.jsx, change the API line:
+   
+   FROM: const API = "http://localhost:5000/api";
+   TO:   const API = "https://green-transport-backend.onrender.com/api";
+
+2. Push frontend to GitHub:
+   
+   cd green-transport-frontend
+   git init
+   git add .
+   git commit -m "initial commit"
+   
+   Create new GitHub repo → push it
+
+3. Go to https://vercel.com
+4. Sign up with GitHub
+5. Click "Add New Project" → Import your frontend repo
+6. Keep all defaults → Click "Deploy"
+7. Wait 1-2 minutes → you get a URL like:
+   https://green-transport-frontend.vercel.app ✅
+
+=============================================================
+PART 3: FOLDER STRUCTURE (for reference)
+=============================================================
+
+green-transport/
+├── backend/
+│   ├── server.js          ← main backend file
+│   ├── package.json       ← dependencies
+│   └── .env               ← DB credentials (NEVER push to GitHub)
+│
+├── frontend/
+│   └── src/
+│       └── App.jsx        ← main React file
+│
+└── sql/
+    └── schema.sql         ← ALL SQL (run this first in MySQL)
+
+=============================================================
+PART 4: COMMON ERRORS AND FIXES
+=============================================================
+
+ERROR: "ER_ACCESS_DENIED_ERROR"
+FIX: Wrong MySQL password in .env file
+
+ERROR: "Cannot connect to database"  
+FIX: Make sure MySQL service is running
+     Windows: Open Services → MySQL80 → Start
+     Mac: System Preferences → MySQL → Start
+
+ERROR: "CORS error" in browser
+FIX: Already handled in server.js with cors() middleware
+
+ERROR: Frontend shows blank / no data
+FIX: Check that backend is running first (port 5000)
+     Check API URL in App.jsx matches your backend URL
+
+ERROR: Render deployment fails
+FIX: Make sure package.json has "start": "node server.js"
+     Don't push .env to GitHub — add env vars in Render dashboard
+
+=============================================================
+TESTING YOUR API ENDPOINTS
+=============================================================
+
+Once backend is running, test these in browser or Postman:
+
+GET  http://localhost:5000/api/dashboard
+GET  http://localhost:5000/api/trips
+GET  http://localhost:5000/api/vehicles
+GET  http://localhost:5000/api/drivers
+GET  http://localhost:5000/api/routes
+GET  http://localhost:5000/api/emissions
+GET  http://localhost:5000/api/sustainability
+GET  http://localhost:5000/api/reports
+
+POST http://localhost:5000/api/trips
+Body (JSON):
+{
+  "vehicle_id": 1,
+  "driver_id": 1,
+  "route_id": 1,
+  "start_time": "2025-03-01 08:00:00",
+  "end_time": "2025-03-01 09:30:00",
+  "litres_used": 22.5,
+  "idle_minutes": 10
+}
